@@ -7,6 +7,23 @@ from modules.intent_classifier import niyet_belirle
 from modules.kullanici_sorgusu import sorgular
 from modules.sorgu import OUT_CSV, TOP_K, sort_query_similarity
 from modules.webScraping import get_structured_web_content_selenium
+from pathlib import Path
+
+try:
+    from config import output_dir as _OUT
+except Exception:
+    _OUT = "data/output"
+
+ROOT = Path(__file__).resolve().parent
+OUTPUT_DIR = Path(_OUT) if os.path.isabs(_OUT) else (ROOT / _OUT)
+
+def out_path(name: str) -> Path:
+    """output_dir altındaki dosyanın TAM yolunu verir; yoksa fallback olarak proje kökünü dener."""
+    p = OUTPUT_DIR / name
+    if p.exists():
+        return p
+    alt = ROOT / name
+    return alt if alt.exists() else p
 
 
 def temizle_niyet(text: str) -> str:
@@ -85,3 +102,30 @@ if (f"{output_dir}/icerik_niyet_top{TOP_K}.csv"):
     print(f"✅ {OUT_CSV} yazıldı.")
 
 
+# ---- 11) Niyet İyileştirme (LLM) ----
+try:
+    niyet_top10_path = out_path("icerik_niyet_top10.csv")
+    print("\n[11] Niyet Top10 yolu:", niyet_top10_path)
+    if niyet_top10_path.exists():
+        print("🧩 Niyet iyileştirme başlıyor...")
+        from modules.niyet_iylestir import run_niyet_flow
+        run_niyet_flow()
+        print("✅ Niyet iyileştirme tamamlandı.")
+    else:
+        print("⚠️  Niyet Top10 bulunamadı, iyileştirme adımı atlandı.")
+except Exception as e:
+    print("❌ Niyet iyileştirme adımında hata:", e)
+
+# ---- 12) Sorgu İyileştirme (LLM) ----
+try:
+    sorgu_top10_path = out_path("icerik_sorgu_top10.csv")
+    print("\n[12] Sorgu Top10 yolu:", sorgu_top10_path)
+    if sorgu_top10_path.exists():
+        print("🧩 Sorgu iyileştirme başlıyor...")
+        from modules.sorgu_iyilestir import run_sorgu_flow
+        run_sorgu_flow()
+        print("✅ Sorgu iyileştirme tamamlandı.")
+    else:
+        print("⚠️  Sorgu Top10 bulunamadı, iyileştirme adımı atlandı.")
+except Exception as e:
+    print("❌ Sorgu iyileştirme adımında hata:", e)
