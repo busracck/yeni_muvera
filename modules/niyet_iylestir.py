@@ -31,8 +31,8 @@ try:
 except Exception:
     st_model = SentenceTransformer("emrecan/bert-base-turkish-cased-mean-nli-stsb-tr")
 
-from prompt.niyet_prompt import generate_niyet_prompt as _gen_niyet_prompt
-from prompt.sorgu_prompt import generate_sorgu_prompt as _gen_sorgu_prompt
+from modules.prompt.niyet_prompt import generate_niyet_prompt as _gen_niyet_prompt
+from modules.prompt.sorgu_prompt import generate_sorgu_prompt as _gen_sorgu_prompt
 
 # ============== UTIL ==============
 def now() -> str:

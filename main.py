@@ -89,13 +89,13 @@ if not os.path.exists(f"{output_dir}/title_description_kendi_uyumu.csv"):
 
 
 # ---- 9) Sorgu benzerlik skoru hesaplama ----
-if (f"{output_dir}/icerik_sorgu_top{TOP_K}.csv"):
+if not os.path.exists(f"{output_dir}/icerik_sorgu_top{TOP_K}.csv"):
     print("\n📈 Sorgu benzerlik skorları sıralanıyor...")
     sort_query_similarity()
     print(f"✅ {OUT_CSV} yazıldı.")
 
 # ---- 10) Niyet benzerlik skoru hesaplama ----
-if (f"{output_dir}/icerik_niyet_top{TOP_K}.csv"):
+if not os.path.exists(f"{output_dir}/icerik_niyet_top{TOP_K}.csv"):
     print("\n📈 Niyet benzerlik skorları sıralanıyor...")
     from modules.niyet import sort_intent_similarity
     sort_intent_similarity()
@@ -103,29 +103,29 @@ if (f"{output_dir}/icerik_niyet_top{TOP_K}.csv"):
 
 
 # ---- 11) Niyet İyileştirme (LLM) ----
-try:
-    niyet_top10_path = out_path("icerik_niyet_top10.csv")
-    print("\n[11] Niyet Top10 yolu:", niyet_top10_path)
-    if niyet_top10_path.exists():
-        print("🧩 Niyet iyileştirme başlıyor...")
+NIYET_TOPK = os.path.join(output_dir, f"icerik_niyet_top{TOP_K}.csv")
+NIYET_IYI  = os.path.join(output_dir, "icerik_niyet_iyilestirme.csv")
+
+
+if os.path.exists(NIYET_TOPK):
+        print("\n🧩 Niyet iyileştirme başlıyor...")
         from modules.niyet_iylestir import run_niyet_flow
         run_niyet_flow()
-        print("✅ Niyet iyileştirme tamamlandı.")
-    else:
-        print("⚠️  Niyet Top10 bulunamadı, iyileştirme adımı atlandı.")
-except Exception as e:
-    print("❌ Niyet iyileştirme adımında hata:", e)
+        print(f"✅ {NIYET_IYI} yazıldı.")
+else:
+        print(f"\n⚠️  Niyet Top{TOP_K} bulunamadı, iyileştirme adımı atlandı: {NIYET_TOPK}")
+
+
 
 # ---- 12) Sorgu İyileştirme (LLM) ----
-try:
-    sorgu_top10_path = out_path("icerik_sorgu_top10.csv")
-    print("\n[12] Sorgu Top10 yolu:", sorgu_top10_path)
-    if sorgu_top10_path.exists():
-        print("🧩 Sorgu iyileştirme başlıyor...")
+SORGU_TOPK = os.path.join(output_dir, f"icerik_sorgu_top{TOP_K}.csv")
+SORGU_IYI  = os.path.join(output_dir, "icerik_sorgu_iyilestirme.csv")
+
+
+if os.path.exists(SORGU_TOPK):
+        print("\n🧩 Sorgu iyileştirme başlıyor...")
         from modules.sorgu_iyilestir import run_sorgu_flow
         run_sorgu_flow()
-        print("✅ Sorgu iyileştirme tamamlandı.")
-    else:
-        print("⚠️  Sorgu Top10 bulunamadı, iyileştirme adımı atlandı.")
-except Exception as e:
-    print("❌ Sorgu iyileştirme adımında hata:", e)
+        print(f"✅ {SORGU_IYI} yazıldı.")
+else:
+        print(f"\n⚠️  Sorgu Top{TOP_K} bulunamadı, iyileştirme adımı atlandı: {SORGU_TOPK}")
